@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hapana Fireworks – Login</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===========================
+   CSS VARIABLES
+=========================== */
+:root {
+  --gold: #ffc107;
+  --gold-dark: #ff9800;
+  --gold-dim: rgba(255,193,7,0.12);
+  --gold-border: rgba(255,193,7,0.18);
+  --bg-card: rgba(255,255,255,0.04);
+  --text-muted: #c8c8c8;
+  --radius-card: 20px;
+  --radius-pill: 50px;
+  --transition: 0.3s ease;
+}
+
+/* ===========================
+   RESET & BASE
+=========================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ===========================
+   FIREWORKS CANVAS
+=========================== */
+#fireworksCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===========================
+   NAVBAR
+=========================== */
+.navbar {
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gold-border);
+  position: relative;
+  z-index: 10;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold) !important;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,193,7,0.7);
+  box-shadow: 0 0 12px rgba(255,193,7,0.3);
+  flex-shrink: 0;
+}
+
+.navbar .nav-item { margin: 0 3px; }
+
+.navbar .nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 7px 14px !important;
+  border-radius: var(--radius-pill);
+  transition: all var(--transition);
+}
+
+.navbar .nav-link:hover {
+  color: var(--gold) !important;
+  background: var(--gold-dim);
+}
+
+.navbar .nav-link.active {
+  background: linear-gradient(45deg, var(--gold-dark), var(--gold));
+  color: #000 !important;
+  font-weight: 600;
+  box-shadow: 0 0 14px rgba(255,193,7,0.3);
+}
+
+.navbar-toggler {
+  border: 1px solid rgba(255,193,7,0.4);
+  padding: 5px 9px;
+}
+.navbar-toggler:focus { box-shadow: none; }
+.navbar-toggler-icon { filter: brightness(10); }
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: rgba(5,5,5,0.97);
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--gold-border);
+  }
+  .navbar .nav-item { margin: 4px 0; }
+  .navbar .nav-link { display: block; }
+}
+
+/* ===========================
+   AUTH SECTION
+=========================== */
+.auth-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 110px 16px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===========================
+   AUTH BOX
+=========================== */
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(12,12,12,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-card);
+  padding: 44px 36px;
+  box-shadow: 0 0 30px rgba(255,193,7,0.08);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+  animation: fadeIn 0.85s ease both;
+}
+
+.auth-box:hover {
+  box-shadow: 0 0 40px rgba(255,193,7,0.22);
+  transform: translateY(-4px);
+}
+
+/* LOGO / BRAND TOP */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.auth-brand-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,193,7,0.6);
+  box-shadow: 0 0 18px rgba(255,193,7,0.3);
+}
+
+.auth-box h2 {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 0;
+  text-shadow: 0 0 16px rgba(255,193,7,0.25);
+}
+
+.auth-box .auth-subtitle {
+  text-align: center;
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 28px;
+}
+
+/* ===========================
+   FORM ELEMENTS
+=========================== */
+.form-group { margin-bottom: 20px; }
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  font-size: 0.95rem;
+  pointer-events: none;
+  transition: color var(--transition);
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.92rem;
+  padding: 12px 14px 12px 40px;
+  outline: none;
+  transition: all var(--transition);
+}
+
+.form-input::placeholder { color: #555; }
+
+.form-input:focus {
+  background: rgba(255,193,7,0.06);
+  border-color: rgba(255,193,7,0.45);
+  box-shadow: 0 0 0 3px rgba(255,193,7,0.1);
+  color: #fff;
+}
+
+.form-input:focus + i,
+.input-wrap:focus-within i {
+  color: var(--gold);
+}
+
+/* Password toggle */
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  pointer-events: all;
+  transition: color var(--transition);
+}
+.pw-toggle:hover { color: var(--gold); }
+
+/* Error message */
+.field-error {
+  font-size: 0.78rem;
+  color: #ff6b6b;
+  margin-top: 5px;
+  display: none;
+}
+
+.field-error.visible { display: block; }
+
+/* ===========================
+   SUBMIT BUTTON
+=========================== */
+.btn-login {
+  width: 100%;
+  background: linear-gradient(45deg, var(--gold-dark), var(--gold));
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 13px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px rgba(255,193,7,0.4);
+}
+
+.btn-login:active { transform: scale(0.98); }
+
+/* ===========================
+   FOOTER LINKS
+=========================== */
+.auth-footer-links {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.9;
+}
+
+.auth-footer-links a {
+  color: var(--gold);
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.auth-footer-links a:hover { color: #fff; }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 0;
+  color: #444;
+  font-size: 0.78rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* ===========================
+   ANIMATION
+=========================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 480px) {
+  .auth-box { padding: 32px 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- FIREWORKS CANVAS -->
+<canvas id="fireworksCanvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="Index.php">
+      <img src="images/PHOTO-2026-02-12-17-21-53.jpg" class="logo" alt="Hapana Fireworks">
+      Hapana Fireworks
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="Index.php">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="Products.php">Products</a></li>
+        <li class="nav-item"><a class="nav-link" href="cart.php">Cart</a></li>
+        <li class="nav-item"><a class="nav-link active" href="Login.html">Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH SECTION -->
+<section class="auth-section">
+  <div class="auth-box">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+      <img src="images/PHOTO-2026-02-12-17-21-53.jpg" class="auth-brand-logo" alt="Hapana Fireworks">
+      <h2>Welcome Back</h2>
+    </div>
+    <p class="auth-subtitle">Sign in to your Hapana Fireworks account</p>
+
+    <!-- Form -->
+    <form action="login.php" method="POST" id="loginForm" novalidate>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" autocomplete="email">
+          <i class="bi bi-envelope"></i>
+        </div>
+        <span class="field-error" id="emailError">Please enter a valid email address.</span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" autocomplete="current-password">
+          <i class="bi bi-lock"></i>
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">
+            <i class="bi bi-eye" id="pwIcon"></i>
+          </button>
+        </div>
+        <span class="field-error" id="passwordError">Password is required.</span>
+      </div>
+
+      <!-- Forgot Password -->
+      <div style="text-align:right; margin-top:-10px; margin-bottom:22px;">
+        <a href="forgot_password.php" style="font-size:0.82rem; color:var(--gold);">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-login">Sign In</button>
+
+    </form>
+
+    <div class="auth-divider">or</div>
+
+    <div class="auth-footer-links">
+      Don't have an account? <a href="signup.php">Create one</a>
+    </div>
+
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── Fireworks ─────────────────────────────────────────
+const canvas = document.getElementById("fireworksCanvas");
+const ctx    = canvas.getContext("2d");
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener("resize", resize);
+
+const fireworks = [], particles = [];
+
+class Firework {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height;
+    this.targetY = Math.random() * canvas.height * 0.5;
+    this.color = `hsl(${Math.random()*360},100%,60%)`;
+    this.speed = 5; this.exploded = false;
+  }
+  update() {
+    if (!this.exploded) {
+      this.y -= this.speed;
+      if (this.y <= this.targetY) {
+        this.exploded = true;
+        for (let i = 0; i < 50; i++) particles.push(new Particle(this.x, this.y, this.color));
+      }
+    }
+  }
+  draw() { if (!this.exploded) { ctx.fillStyle = this.color; ctx.fillRect(this.x, this.y, 3, 8); } }
+}
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x; this.y = y; this.color = color;
+    this.radius = 2;
+    this.speedX = (Math.random() - 0.5) * 6;
+    this.speedY = (Math.random() - 0.5) * 6;
+    this.gravity = 0.05; this.alpha = 1;
+  }
+  update() { this.x += this.speedX; this.y += this.speedY; this.speedY += this.gravity; this.alpha -= 0.01; }
+  draw() { ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
+}
+
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (Math.random() < 0.04) fireworks.push(new Firework());
+  for (let i = fireworks.length - 1; i >= 0; i--) { fireworks[i].update(); fireworks[i].draw(); if (fireworks[i].exploded) fireworks.splice(i, 1); }
+  for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(); if (particles[i].alpha <= 0) particles.splice(i, 1); }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ── Password toggle ────────────────────────────────────
+document.getElementById("pwToggle").addEventListener("click", function () {
+  const input = document.getElementById("password");
+  const icon  = document.getElementById("pwIcon");
+  if (input.type === "password") {
+    input.type = "text";
+    icon.className = "bi bi-eye-slash";
+  } else {
+    input.type = "password";
+    icon.className = "bi bi-eye";
+  }
+});
+
+// ── Form validation ────────────────────────────────────
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+  let valid = true;
+
+  const email    = document.getElementById("email");
+  const password = document.getElementById("password");
+  const emailErr = document.getElementById("emailError");
+  const pwErr    = document.getElementById("passwordError");
+
+  // Reset
+  emailErr.classList.remove("visible");
+  pwErr.classList.remove("visible");
+  email.style.borderColor    = "";
+  password.style.borderColor = "";
+
+  // Email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
+    emailErr.classList.add("visible");
+    email.style.borderColor = "rgba(255,107,107,0.6)";
+    valid = false;
+  }
+
+  // Password
+  if (!password.value) {
+    pwErr.classList.add("visible");
+    password.style.borderColor = "rgba(255,107,107,0.6)";
+    valid = false;
+  }
+
+  if (!valid) e.preventDefault();
+});
+
+// Clear error on input
+["email", "password"].forEach(id => {
+  document.getElementById(id).addEventListener("input", function () {
+    const err = document.getElementById(id + "Error");
+    if (err) err.classList.remove("visible");
+    this.style.borderColor = "";
+  });
+});
+</script>
+</body>
+</html>
