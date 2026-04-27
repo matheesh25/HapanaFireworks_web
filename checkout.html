@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hapana Fireworks – Checkout</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===========================
+   CSS VARIABLES — match Index.php
+=========================== */
+:root {
+  --gold: #ffc107;
+  --gold-dark: #ff9800;
+  --gold-dim: rgba(255,193,7,0.13);
+  --gold-border: rgba(255,193,7,0.18);
+  --bg-black: #000;
+  --bg-card: rgba(255,255,255,0.04);
+  --text-main: #fff;
+  --text-muted: #c8c8c8;
+  --radius-card: 20px;
+  --radius-pill: 50px;
+  --transition: 0.3s ease;
+  --input-bg: rgba(255,255,255,0.05);
+  --input-border: rgba(255,255,255,0.1);
+}
+
+/* ===========================
+   RESET & BASE
+=========================== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg-black);
+  color: var(--text-main);
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+a { text-decoration:none; color:inherit; }
+img { max-width:100%; display:block; }
+
+/* ===========================
+   FIREWORKS CANVAS
+=========================== */
+#fireworksCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===========================
+   NAVBAR — identical to Index.php
+=========================== */
+.navbar {
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gold-border);
+}
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold) !important;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.logo {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,193,7,0.7);
+  box-shadow: 0 0 12px rgba(255,193,7,0.3);
+  flex-shrink: 0;
+}
+.navbar .nav-item { margin: 0 3px; }
+.navbar .nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 7px 14px !important;
+  border-radius: var(--radius-pill);
+  transition: all var(--transition);
+}
+.navbar .nav-link:hover { color: var(--gold) !important; background: var(--gold-dim); }
+.navbar .nav-link.active {
+  background: linear-gradient(45deg, var(--gold-dark), var(--gold));
+  color: #000 !important;
+  font-weight: 600;
+  box-shadow: 0 0 14px rgba(255,193,7,0.3);
+}
+.navbar .profile-icon i {
+  color: var(--gold);
+  filter: drop-shadow(0 0 6px rgba(255,193,7,0.5));
+}
+.navbar-toggler {
+  border: 1px solid rgba(255,193,7,0.4);
+  padding: 5px 9px;
+}
+.navbar-toggler:focus { box-shadow: none; }
+.navbar-toggler-icon { filter: brightness(10); }
+
+@media (max-width:991.98px) {
+  .navbar-collapse {
+    background: rgba(5,5,5,0.97);
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--gold-border);
+  }
+  .navbar .nav-item { margin: 4px 0; }
+  .navbar .nav-link { display: block; }
+}
+
+/* ===========================
+   PAGE
+=========================== */
+.checkout-page {
+  min-height: 100vh;
+  padding: 110px 0 70px;
+}
+
+/* Page header */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.page-label {
+  color: #ffd86b;
+  font-size: 0.8rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.page-header h1 {
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 18px rgba(255,193,7,0.2);
+}
+
+/* Back button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+  color: var(--gold);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-bottom: 28px;
+}
+.back-btn:hover {
+  background: rgba(255,193,7,0.2);
+  border-color: rgba(255,193,7,0.4);
+  transform: translateX(-3px);
+  color: var(--gold);
+}
+
+/* ===========================
+   GLASS CARD
+=========================== */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  padding: 32px 28px;
+  height: 100%;
+}
+
+/* Section label inside card */
+.card-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-section-title i { font-size: 0.95rem; }
+
+.card-divider {
+  border: none;
+  border-top: 1px solid var(--gold-border);
+  margin: 24px 0;
+}
+
+/* ===========================
+   FORM INPUTS
+=========================== */
+.form-field { margin-bottom: 14px; }
+.form-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+.inp {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  color: #fff;
+  padding: 11px 15px;
+  font-size: 0.9rem;
+  font-family: 'Poppins', sans-serif;
+  transition: all var(--transition);
+  outline: none;
+  resize: none;
+}
+.inp:focus {
+  border-color: rgba(255,193,7,0.5);
+  background: rgba(255,193,7,0.05);
+  box-shadow: 0 0 0 3px rgba(255,193,7,0.1);
+}
+.inp::placeholder { color: #444; }
+
+/* ===========================
+   PAYMENT RADIO
+=========================== */
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.payment-option:hover {
+  border-color: rgba(255,193,7,0.3);
+  background: rgba(255,193,7,0.04);
+}
+.payment-option.selected {
+  border-color: rgba(255,193,7,0.45);
+  background: rgba(255,193,7,0.07);
+}
+.payment-option input[type="radio"] {
+  accent-color: var(--gold);
+  width: 17px; height: 17px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.payment-option .pay-icon {
+  width: 36px; height: 36px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.payment-option .pay-icon i { color: var(--gold); font-size: 1rem; }
+.pay-label { font-size: 0.9rem; font-weight: 600; color: #f0f0f0; }
+.pay-sub   { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Card details panel */
+#cardDetails {
+  display: none;
+  margin-top: 16px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--gold-border);
+  border-radius: 14px;
+}
+#cardDetails .form-field { margin-bottom: 12px; }
+
+/* ===========================
+   PLACE ORDER BUTTON
+=========================== */
+.place-btn {
+  width: 100%;
+  background: linear-gradient(45deg, var(--gold-dark), var(--gold));
+  color: #000;
+  font-weight: 800;
+  font-size: 0.97rem;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 0 20px rgba(255,193,7,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 24px;
+  letter-spacing: 0.3px;
+}
+.place-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(255,193,7,0.45);
+}
+.place-btn:active { transform: scale(0.97); }
+
+/* ===========================
+   ORDER SUMMARY
+=========================== */
+.summary-sticky { position: sticky; top: 100px; }
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 12px;
+}
+.summary-item:last-of-type { border-bottom: none; }
+.item-name { font-size: 0.88rem; color: #e0e0e0; font-weight: 500; flex: 1; }
+.item-price { font-size: 0.88rem; color: var(--gold); font-weight: 600; white-space: nowrap; }
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+.summary-row .row-label { font-size: 0.85rem; color: var(--text-muted); }
+.summary-row .row-val   { font-size: 0.85rem; color: #e0e0e0; font-weight: 500; }
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--gold-border);
+  margin-top: 10px;
+}
+.total-label { font-size: 1rem; font-weight: 700; color: #fff; }
+.total-val   { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+
+/* Empty state */
+.empty-summary {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+.empty-summary i { font-size: 2rem; color: var(--gold-border); display: block; margin-bottom: 10px; }
+
+/* ===========================
+   TOAST
+=========================== */
+.toast-wrap {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast-msg {
+  background: rgba(15,15,15,0.95);
+  border: 1px solid var(--gold-border);
+  border-radius: 14px;
+  padding: 13px 20px;
+  color: #fff;
+  font-size: 0.87rem;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  animation: slideUp 0.35s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+  max-width: 320px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+}
+.toast-msg.error  { border-color: rgba(239,68,68,0.4); }
+.toast-msg i      { font-size: 1.1rem; flex-shrink: 0; }
+.toast-msg.success i { color: var(--gold); }
+.toast-msg.error   i { color: #ff6b6b; }
+
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ===========================
+   ANIMATIONS
+=========================== */
+.fade-in    { animation: fadeIn 0.85s ease both; }
+.fade-in-d1 { animation: fadeIn 0.85s 0.1s ease both; }
+.fade-in-d2 { animation: fadeIn 0.85s 0.2s ease both; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(18px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ===========================
+   FOOTER
+=========================== */
+.footer-section {
+  background: #000;
+  padding: 26px 0;
+  border-top: 1px solid var(--gold-border);
+  text-align: center;
+}
+.footer-copy { font-size: 0.78rem; color: #444; margin:0; }
+.footer-sub  { font-size: 0.74rem; color: #333; margin:4px 0 0; }
+
+/* ===========================
+   MOBILE
+=========================== */
+@media (max-width: 991.98px) {
+  .checkout-page { padding: 100px 0 60px; }
+  .summary-sticky { position: static; }
+}
+@media (max-width: 575.98px) {
+  .glass-card { padding: 22px 16px; }
+  .toast-wrap { bottom: 16px; right: 16px; left: 16px; }
+  .toast-msg  { min-width: unset; max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- FIREWORKS CANVAS -->
+<canvas id="fireworksCanvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="Index.php">
+      <img src="images/PHOTO-2026-02-12-17-21-53.jpg" class="logo" alt="Hapana Fireworks Logo">
+      Hapana Fireworks
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="Index.php">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="Products.php">Products</a></li>
+        <li class="nav-item"><a class="nav-link active" href="cart.php">Cart</a></li>
+        <li class="nav-item"><a class="nav-link" href="Login.html">Login</a></li>
+        <li class="nav-item ms-lg-2">
+          <a class="nav-link profile-icon" href="profile.php" aria-label="Profile">
+            <i class="bi bi-person-circle fs-5"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- CHECKOUT PAGE -->
+<main class="checkout-page">
+  <div class="container">
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+      <p class="page-label">Almost There</p>
+      <h1>Checkout</h1>
+    </div>
+
+    <!-- Back Button -->
+    <div class="fade-in">
+      <button class="back-btn" onclick="window.history.back()">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+    </div>
+
+    <div class="row g-4 align-items-start">
+
+      <!-- LEFT: Form -->
+      <div class="col-lg-7 fade-in-d1">
+        <div class="glass-card">
+          <form id="checkoutForm" novalidate>
+
+            <!-- Billing Details -->
+            <div class="card-section-title">
+              <i class="bi bi-person-lines-fill"></i> Billing Details
+            </div>
+
+            <div class="form-field">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" class="inp" placeholder="e.g. Kamal Perera">
+            </div>
+            <div class="form-field">
+              <label for="phone">Phone Number</label>
+              <input type="text" id="phone" class="inp" placeholder="0771234567" maxlength="10">
+            </div>
+            <div class="form-field">
+              <label for="address">Delivery Address</label>
+              <textarea id="address" class="inp" rows="3" placeholder="No. 12, Main Street, Negombo"></textarea>
+            </div>
+
+            <hr class="card-divider">
+
+            <!-- Payment Method -->
+            <div class="card-section-title">
+              <i class="bi bi-credit-card"></i> Payment Method
+            </div>
+
+            <label class="payment-option selected" id="codLabel">
+              <input type="radio" name="payment" value="cod" checked onchange="onPaymentChange(this)">
+              <div class="pay-icon"><i class="bi bi-cash-stack"></i></div>
+              <div>
+                <p class="pay-label">Cash on Delivery</p>
+                <p class="pay-sub">Pay when your order arrives</p>
+              </div>
+            </label>
+
+            <label class="payment-option" id="cardLabel">
+              <input type="radio" name="payment" value="paid" onchange="onPaymentChange(this)">
+              <div class="pay-icon"><i class="bi bi-credit-card-2-front"></i></div>
+              <div>
+                <p class="pay-label">Credit / Debit Card</p>
+                <p class="pay-sub">Visa, Mastercard, Amex</p>
+              </div>
+            </label>
+
+            <!-- Card Details -->
+            <div id="cardDetails">
+              <div class="form-field">
+                <label for="cardName">Cardholder Name</label>
+                <input type="text" id="cardName" class="inp" placeholder="Name on card">
+              </div>
+              <div class="form-field">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" class="inp" placeholder="16-digit number" maxlength="19">
+              </div>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="form-field">
+                    <label for="expiry">Expiry Date</label>
+                    <input type="text" id="expiry" class="inp" placeholder="MM/YY" maxlength="5">
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-field">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" class="inp" placeholder="3 digits" maxlength="3">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="place-btn">
+              <i class="bi bi-bag-check-fill"></i> Place Order
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT: Summary -->
+      <div class="col-lg-5 fade-in-d2">
+        <div class="summary-sticky">
+          <div class="glass-card">
+            <div class="card-section-title">
+              <i class="bi bi-receipt"></i> Order Summary
+            </div>
+            <div id="itemsList"></div>
+            <hr class="card-divider" id="summaryDivider" style="display:none;">
+            <div id="summaryTotals"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer-section">
+  <div class="container">
+    <p class="footer-copy">© 2026 Hapana Fireworks. All rights reserved.</p>
+    <p class="footer-sub">Negombo, Sri Lanka</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ===========================
+   FIREWORKS — identical to Index.php
+=========================== */
+const canvas = document.getElementById("fireworksCanvas");
+const ctx    = canvas.getContext("2d");
+function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener("resize", resize);
+const fireworks = [], particles = [];
+class Firework {
+  constructor(){ this.x=Math.random()*canvas.width; this.y=canvas.height; this.targetY=Math.random()*canvas.height*0.5; this.color=`hsl(${Math.random()*360},100%,60%)`; this.speed=5; this.exploded=false; }
+  update(){ if(!this.exploded){ this.y-=this.speed; if(this.y<=this.targetY){ this.exploded=true; for(let i=0;i<50;i++) particles.push(new Particle(this.x,this.y,this.color)); } } }
+  draw(){ if(!this.exploded){ ctx.fillStyle=this.color; ctx.fillRect(this.x,this.y,3,8); } }
+}
+class Particle {
+  constructor(x,y,color){ this.x=x; this.y=y; this.color=color; this.radius=2; this.speedX=(Math.random()-0.5)*6; this.speedY=(Math.random()-0.5)*6; this.gravity=0.05; this.alpha=1; }
+  update(){ this.x+=this.speedX; this.y+=this.speedY; this.speedY+=this.gravity; this.alpha-=0.01; }
+  draw(){ ctx.globalAlpha=this.alpha; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
+}
+function animate(){
+  ctx.fillStyle="rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  if(Math.random()<0.04) fireworks.push(new Firework());
+  for(let i=fireworks.length-1;i>=0;i--){ fireworks[i].update(); fireworks[i].draw(); if(fireworks[i].exploded) fireworks.splice(i,1); }
+  for(let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].draw(); if(particles[i].alpha<=0) particles.splice(i,1); }
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ===========================
+   TOAST
+=========================== */
+function toast(msg, type="error"){
+  const wrap = document.getElementById("toastWrap");
+  const t = document.createElement("div");
+  t.className = `toast-msg ${type}`;
+  t.innerHTML = `<i class="bi bi-${type==="success"?"check-circle-fill":"exclamation-circle-fill"}"></i><span>${msg}</span>`;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity="0"; t.style.transform="translateY(12px)"; t.style.transition="0.4s"; setTimeout(()=>t.remove(), 400); }, 3000);
+}
+
+/* ===========================
+   PAYMENT TOGGLE
+=========================== */
+function onPaymentChange(radio){
+  document.getElementById("cardDetails").style.display = radio.value === "paid" ? "block" : "none";
+  document.querySelectorAll(".payment-option").forEach(el => el.classList.remove("selected"));
+  radio.closest(".payment-option").classList.add("selected");
+}
+
+/* ===========================
+   CARD NUMBER FORMATTING
+=========================== */
+document.getElementById("cardNumber").addEventListener("input", function(){
+  let v = this.value.replace(/\D/g,"").substring(0,16);
+  this.value = v.match(/.{1,4}/g)?.join(" ") || v;
+});
+
+/* ===========================
+   EXPIRY FORMATTING
+=========================== */
+document.getElementById("expiry").addEventListener("input", function(){
+  let v = this.value.replace(/\D/g,"");
+  if(v.length >= 3) v = v.substring(0,2) + "/" + v.substring(2,4);
+  this.value = v;
+});
+
+/* ===========================
+   LOAD ORDER SUMMARY
+=========================== */
+let cartTotal = 0;
+const DELIVERY = 300;
+
+function loadSummary(){
+  const single = JSON.parse(localStorage.getItem("checkoutItem") || "null");
+  const all    = JSON.parse(localStorage.getItem("checkoutAll")  || "null");
+  const list   = document.getElementById("itemsList");
+  const totals = document.getElementById("summaryTotals");
+  const divider= document.getElementById("summaryDivider");
+  let html = "";
+  cartTotal = 0;
+
+  if(single){
+    const t = single.price * single.quantity;
+    cartTotal = t;
+    html += `<div class="summary-item">
+      <span class="item-name">${single.name} <span style="color:#888;font-size:0.8rem;">×${single.quantity}</span></span>
+      <span class="item-price">LKR ${t.toLocaleString()}</span>
+    </div>`;
+  } else if(all && all.length){
+    all.forEach(item => {
+      const t = item.price * item.quantity;
+      cartTotal += t;
+      html += `<div class="summary-item">
+        <span class="item-name">${item.name} <span style="color:#888;font-size:0.8rem;">×${item.quantity}</span></span>
+        <span class="item-price">LKR ${t.toLocaleString()}</span>
+      </div>`;
+    });
+  } else {
+    html = `<div class="empty-summary"><i class="bi bi-bag-x"></i>No items found.</div>`;
+  }
+
+  list.innerHTML = html;
+
+  if(cartTotal > 0){
+    divider.style.display = "block";
+    totals.innerHTML = `
+      <div class="summary-row">
+        <span class="row-label">Subtotal</span>
+        <span class="row-val">LKR ${cartTotal.toLocaleString()}</span>
+      </div>
+      <div class="summary-row">
+        <span class="row-label">Delivery</span>
+        <span class="row-val">LKR ${DELIVERY.toLocaleString()}</span>
+      </div>
+      <div class="summary-total">
+        <span class="total-label">Total</span>
+        <span class="total-val">LKR ${(cartTotal + DELIVERY).toLocaleString()}</span>
+      </div>`;
+  }
+}
+loadSummary();
+
+/* ===========================
+   FORM SUBMIT
+=========================== */
+document.getElementById("checkoutForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const name    = document.getElementById("name").value.trim();
+  const phone   = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const payment = document.querySelector('input[name="payment"]:checked').value;
+
+  if(!name)                            { toast("Please enter your full name.");         return; }
+  if(!/^[0-9]{10}$/.test(phone))       { toast("Enter a valid 10-digit phone number."); return; }
+  if(!address)                         { toast("Please enter your delivery address.");  return; }
+
+  let cardNumber = "";
+  if(payment === "paid"){
+    const cardName = document.getElementById("cardName").value.trim();
+    cardNumber     = document.getElementById("cardNumber").value.replace(/\s/g,"");
+    const expiry   = document.getElementById("expiry").value.trim();
+    const cvv      = document.getElementById("cvv").value.trim();
+    if(!cardName)                              { toast("Enter cardholder name.");              return; }
+    if(!/^[0-9]{16}$/.test(cardNumber))        { toast("Card number must be 16 digits.");      return; }
+    if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)){ toast("Expiry must be MM/YY format.");       return; }
+    if(!/^[0-9]{3}$/.test(cvv))               { toast("CVV must be 3 digits.");               return; }
+  }
+
+  // Build product/qty from localStorage
+  const single  = JSON.parse(localStorage.getItem("checkoutItem") || "null");
+  const all     = JSON.parse(localStorage.getItem("checkoutAll")  || "null");
+  let product = "", qty = 1;
+  if(single){ product = single.name; qty = single.quantity; }
+  else if(all && all.length){ product = all.map(i=>i.name).join(", "); qty = all.reduce((s,i)=>s+i.quantity,0); }
+
+  const finalTotal = cartTotal + DELIVERY;
+
+  const formData = new FormData();
+  formData.append("name",        name);
+  formData.append("phone",       phone);
+  formData.append("address",     address);
+  formData.append("product",     product);
+  formData.append("quantity",    qty);
+  formData.append("total",       finalTotal);
+  formData.append("payment",     payment);
+  formData.append("card_number", cardNumber);
+
+  // Disable button
+  const btn = document.querySelector(".place-btn");
+  btn.disabled = true;
+  btn.innerHTML = `<i class="bi bi-hourglass-split"></i> Placing Order…`;
+
+  fetch("place_order.php", { method:"POST", body: formData })
+    .then(res => res.text())
+    .then(data => {
+      if(data === "success"){
+        toast("Order placed successfully! 🎆", "success");
+        localStorage.removeItem("checkoutItem");
+        localStorage.removeItem("checkoutAll");
+        setTimeout(()=>{ window.location.href = "myOrders.php"; }, 1600);
+      } else if(data === "login_required"){
+        toast("Please login first to place an order.");
+        setTimeout(()=>{ window.location.href = "login.html"; }, 1600);
+      } else {
+        toast("Something went wrong. Please try again.");
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-bag-check-fill"></i> Place Order`;
+      }
+    })
+    .catch(()=>{
+      toast("Network error. Please check your connection.");
+      btn.disabled = false;
+      btn.innerHTML = `<i class="bi bi-bag-check-fill"></i> Place Order`;
+    });
+});
+</script>
+</body>
+</html>
